@@ -1,0 +1,10 @@
+keeper:
+  # 不超过硬编码阈值 min(max-private-keys, <hard-coded-limit>)
+  max-private-keys: 1000000
+  # 加密种子参数
+  seed:
+    # 种子数量
+    count: 2
+    # 十六进制种子长度
+    min-seed-len: 30
+    max-seed-len: 200
