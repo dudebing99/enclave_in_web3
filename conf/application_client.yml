@@ -1,0 +1,26 @@
+gateway:
+  addr: "0.0.0.0:10000"
+  debug: false
+  enable-white-list: true
+  white-list:
+    - "127.0.0.1"
+    - "192.168.0.1"
+  cid: 22
+  port: 1024
+
+persistence-rule:
+  persist-into: "leveldb"
+  # 启动服务是否加载持久化数据
+  load-on-start: true
+
+data:
+  #  redis:
+  #    keystore:
+  #      cluster: false
+  #      addr: '127.0.0.1:6379'
+  #      password: '987654321(*&^%$#@!qazwsxls'
+  #      pool-size: 50
+  #      db: 12
+  leveldb:
+    keystore:
+      db: 'keystore'
