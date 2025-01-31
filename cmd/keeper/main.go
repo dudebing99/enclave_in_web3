@@ -60,7 +60,7 @@ func process(conn net.Conn) {
 			log.Println("add key error: ", err)
 			// 异常处理
 			internalError.ErrorMsg = fmt.Sprint("add key error: ", err)
-			goto INTERNAL_ERROR
+			goto InternalError
 		}
 
 		rsp := dtos.GenerateKeyRsp{
@@ -97,7 +97,7 @@ func process(conn net.Conn) {
 			log.Println("validate error: ", err)
 			// 异常处理
 			internalError.ErrorMsg = fmt.Sprint("validate error: ", err)
-			goto INTERNAL_ERROR
+			goto InternalError
 		}
 
 		// 添加私钥
@@ -111,7 +111,7 @@ func process(conn net.Conn) {
 			log.Println("add key error: ", err)
 			// 异常处理
 			internalError.ErrorMsg = fmt.Sprint("add key error: ", err)
-			goto INTERNAL_ERROR
+			goto InternalError
 		}
 
 		rsp := dtos.AddKeyRsp{
@@ -141,7 +141,7 @@ func process(conn net.Conn) {
 			log.Println("set encryption seed error: ", err)
 			// 异常处理
 			internalError.ErrorMsg = fmt.Sprint("set encryption seed error: ", err)
-			goto INTERNAL_ERROR
+			goto InternalError
 		}
 		rsp := dtos.SetEncryptionSeedRsp{
 			//
@@ -170,7 +170,7 @@ func process(conn net.Conn) {
 			log.Println("add key error: ", err)
 			// 异常处理
 			internalError.ErrorMsg = fmt.Sprint("add key error: ", err)
-			goto INTERNAL_ERROR
+			goto InternalError
 		}
 
 		encryptedKey, err := key_manage.EncryptPrivateKey(enclaveManagedKey.PrivateKey)
@@ -178,7 +178,7 @@ func process(conn net.Conn) {
 			log.Println("encrypt key error: ", err)
 			// 异常处理
 			internalError.ErrorMsg = fmt.Sprint("encrypt key error: ", err)
-			goto INTERNAL_ERROR
+			goto InternalError
 		}
 
 		rsp := dtos.GenerateAddressRsp{
@@ -212,7 +212,7 @@ func process(conn net.Conn) {
 			log.Println("fetch key error: ", err)
 			// 异常处理
 			internalError.ErrorMsg = fmt.Sprint("fetch key error: ", err)
-			goto INTERNAL_ERROR
+			goto InternalError
 		}
 
 		// 去掉前缀 0x
@@ -222,14 +222,14 @@ func process(conn net.Conn) {
 			log.Println("decode message error: ", err)
 			// 异常处理
 			internalError.ErrorMsg = fmt.Sprint("decode message error: ", err)
-			goto INTERNAL_ERROR
+			goto InternalError
 		}
 		signature, err := key_manage.Sign(privateKey, decodedMessage, needToHash)
 		if err != nil {
 			log.Println("sign message error: ", err)
 			// 异常处理
 			internalError.ErrorMsg = fmt.Sprint("sign message error: ", err)
-			goto INTERNAL_ERROR
+			goto InternalError
 		}
 		rsp := dtos.SignMessageRsp{
 			Signature: signature,
@@ -260,7 +260,7 @@ func process(conn net.Conn) {
 			log.Println("not ready: ", err)
 			// 异常处理
 			internalError.ErrorMsg = fmt.Sprint("not ready: ", err)
-			goto INTERNAL_ERROR
+			goto InternalError
 		}
 
 		privateKey, err := key_manage.DecryptPrivateKey(encodedEncryptedPrivateKey)
@@ -268,7 +268,7 @@ func process(conn net.Conn) {
 			log.Println("decrypt private key error: ", err)
 			// 异常处理
 			internalError.ErrorMsg = fmt.Sprint("decrypt private key error: ", err)
-			goto INTERNAL_ERROR
+			goto InternalError
 		}
 
 		err = key_manage.Validate(privateKey, address)
@@ -276,7 +276,7 @@ func process(conn net.Conn) {
 			log.Println("validate error: ", err)
 			// 异常处理
 			internalError.ErrorMsg = fmt.Sprint("validate error: ", err)
-			goto INTERNAL_ERROR
+			goto InternalError
 		}
 
 		// 添加私钥
@@ -290,7 +290,7 @@ func process(conn net.Conn) {
 			log.Println("add key error: ", err)
 			// 异常处理
 			internalError.ErrorMsg = fmt.Sprint("add key error: ", err)
-			goto INTERNAL_ERROR
+			goto InternalError
 		}
 
 		rsp := dtos.AddAddressRsp{
@@ -322,7 +322,7 @@ func process(conn net.Conn) {
 			log.Println("fetch key error: ", err)
 			// 异常处理
 			internalError.ErrorMsg = fmt.Sprint("fetch key error: ", err)
-			goto INTERNAL_ERROR
+			goto InternalError
 		}
 
 		// 去掉前缀 0x
@@ -332,7 +332,7 @@ func process(conn net.Conn) {
 			log.Println("sign tx error: ", err)
 			// 异常处理
 			internalError.ErrorMsg = fmt.Sprint("sign tx error: ", err)
-			goto INTERNAL_ERROR
+			goto InternalError
 		}
 		rsp := dtos.SignTransactionRsp{
 			SignedRawTx: signedRawTx,
@@ -352,10 +352,10 @@ func process(conn net.Conn) {
 	default:
 		log.Println("unknown message type!")
 		internalError.ErrorMsg = fmt.Sprint("unknown message type")
-		goto INTERNAL_ERROR
+		goto InternalError
 	}
 
-INTERNAL_ERROR:
+InternalError:
 	// 写数据
 	rspJson, _ := json.Marshal(internalError)
 	log.Println("try to send internal error to client, type: ", utils.InternalErrorType, ", length: ", len(rspJson))
