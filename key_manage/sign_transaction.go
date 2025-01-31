@@ -3,9 +3,9 @@ package key_manage
 import (
 	"bytes"
 	"encoding/hex"
-	"github.com/dudebing99/go-ethereum/core/types"
-	"github.com/dudebing99/go-ethereum/crypto"
-	"github.com/dudebing99/go-ethereum/rlp"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/rlp"
 	"math/big"
 )
 

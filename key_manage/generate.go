@@ -2,9 +2,9 @@ package key_manage
 
 import (
 	"encoding/hex"
-	"github.com/dudebing99/go-ethereum/accounts/keystore"
-	"github.com/dudebing99/go-ethereum/cmd/utils"
-	"github.com/dudebing99/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/accounts/keystore"
+	"github.com/ethereum/go-ethereum/cmd/utils"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/google/uuid"
 )
 

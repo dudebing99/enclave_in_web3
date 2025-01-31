@@ -1,9 +1,9 @@
 package key_manage
 
 import (
-	"github.com/dudebing99/go-ethereum/accounts"
-	"github.com/dudebing99/go-ethereum/common/hexutil"
-	"github.com/dudebing99/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/accounts"
+	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/crypto"
 )
 
 // 签名中不同语言库存在差异, 解决方案参考资料如下:

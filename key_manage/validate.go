@@ -2,7 +2,7 @@ package key_manage
 
 import (
 	"errors"
-	"github.com/dudebing99/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/crypto"
 )
 
 func Validate(keyBytes string, address string) error {
