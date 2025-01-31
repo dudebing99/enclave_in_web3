@@ -14,13 +14,5 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    
-    - name: Set up Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: '1.19'
-
-    - name: Build enclave
-      run: |
-        go build -o bin/enclave-client ./cmd/client/main.go && \
-        go build -o bin/enclave-keeper ./cmd/keeper/main.go
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag enclave_in_web3:$(date +%s)
