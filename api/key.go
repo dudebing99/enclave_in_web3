@@ -237,14 +237,17 @@ func (controller *KeyController) generateAddress(c *gin.Context) {
 	k := []byte(rsp.KeyId)
 	v := rspJson
 
-	err = dao.Set(k, v, "keystore")
-	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"req_id":     utils.ParseRequestId(c),
-			"error_code": utils.InternalError,
-			"error_msg":  "internal error: persist in leveldb",
-			"data":       nil})
-		return
+	enablePersistence := viper.GetBool("persistence-rule.enable-persistence")
+	if enablePersistence {
+		err = dao.Set(k, v, "keystore")
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"req_id":     utils.ParseRequestId(c),
+				"error_code": utils.InternalError,
+				"error_msg":  "internal error: persist in leveldb",
+				"data":       nil})
+			return
+		}
 	}
 
 	// 默认不返回加密之后的私钥给应用层

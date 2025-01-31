@@ -78,8 +78,8 @@ func main() {
 }
 
 func loadKeystore() (err error) {
-	loadOnStart := viper.GetBool("persistence-rule.load-on-start")
-	if !loadOnStart {
+	enablePersistence := viper.GetBool("persistence-rule.enable-persistence")
+	if !enablePersistence {
 		return
 	}
 

@@ -10,8 +10,7 @@ gateway:
 
 persistence-rule:
   persist-into: "leveldb"
-  # 启动服务是否加载持久化数据
-  load-on-start: true
+  enable-persistence: true
 
 data:
   #  redis:
