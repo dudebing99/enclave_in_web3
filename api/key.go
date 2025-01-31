@@ -206,6 +206,13 @@ func (controller *KeyController) generateAddress(c *gin.Context) {
 	}
 
 	showPrivateKey := req.ShowPrivateKey
+	number := req.Number
+	if number == 0 {
+		number = 1
+	} else if number > utils.MaxNumberInNewAddress {
+		number = utils.MaxNumberInNewAddress
+	}
+
 	reqJson, _ := json.Marshal(req)
 	msgType, rspJson, err := vsock.Process(utils.GenerateAddressReq, reqJson)
 	if err != nil || msgType != utils.GenerateAddressRsp {
@@ -234,26 +241,29 @@ func (controller *KeyController) generateAddress(c *gin.Context) {
 	var rsp dtos.GenerateAddressRsp
 	json.Unmarshal(rspJson, &rsp)
 
-	k := []byte(rsp.KeyId)
-	v := rspJson
+	for index, address := range rsp {
+		k := []byte(address.KeyId)
+		v := rspJson
 
-	enablePersistence := viper.GetBool("persistence-rule.enable-persistence")
-	if enablePersistence {
-		err = dao.Set(k, v, "keystore")
-		if err != nil {
-			c.JSON(http.StatusOK, gin.H{
-				"req_id":     utils.ParseRequestId(c),
-				"error_code": utils.InternalError,
-				"error_msg":  "internal error: persist in leveldb",
-				"data":       nil})
-			return
+		enablePersistence := viper.GetBool("persistence-rule.enable-persistence")
+		if enablePersistence {
+			err = dao.Set(k, v, "keystore")
+			if err != nil {
+				c.JSON(http.StatusOK, gin.H{
+					"req_id":     utils.ParseRequestId(c),
+					"error_code": utils.InternalError,
+					"error_msg":  "internal error: persist in leveldb",
+					"data":       nil})
+				return
+			}
+		}
+
+		// 默认不返回加密之后的私钥给应用层
+		if !showPrivateKey {
+			rsp[index].PrivateKey = ""
 		}
 	}
 
-	// 默认不返回加密之后的私钥给应用层
-	if !showPrivateKey {
-		rsp.PrivateKey = ""
-	}
 	c.JSON(http.StatusOK, gin.H{
 		"req_id":     utils.ParseRequestId(c),
 		"error_code": utils.Success,

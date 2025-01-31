@@ -30,14 +30,17 @@ type SetEncryptionSeedRsp struct {
 }
 
 type GenerateAddressReq struct {
-	ShowPrivateKey bool `json:"show_private_key"` // 加密后的私钥
+	ShowPrivateKey bool   `json:"show_private_key"` // 加密后的私钥
+	Number         uint32 `json:"number"`           // 支持批量生成地址
 }
 
-type GenerateAddressRsp struct {
+type Address struct {
 	KeyId      string `json:"key_id"`
 	Address    string `json:"address"`
 	PrivateKey string `json:"private_key"` // 加密后的私钥
 }
+
+type GenerateAddressRsp []Address
 
 type AddAddressReq struct {
 	KeyId      string `json:"key_id"`
