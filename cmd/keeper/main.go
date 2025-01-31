@@ -18,6 +18,7 @@ import (
 	"net"
 	"os"
 	"strings"
+	"sync"
 )
 
 func process(conn net.Conn) {
@@ -368,18 +369,19 @@ InternalError:
 }
 
 // 私钥保管箱
-var keeper map[string]key_manage.EnclaveManagedKey
+var keeper sync.Map
 
 func AddKey(enclaveManagedKey key_manage.EnclaveManagedKey, ignoreExisted bool) error {
 	keyId := enclaveManagedKey.KeyId
 
 	// 设置存储私钥阈值，超过阈值不处理
-	if uint32(len(keeper)) >= utils.DefaultMaxPrivateKeys {
-		return errors.New("too much private keys")
-	}
+	// TODO: 统计已添加私钥个数
+	//if uint32(keeper) >= utils.DefaultMaxPrivateKeys {
+	//	return errors.New("too much private keys")
+	//}
 
 	// 是否已存在
-	if _, ok := keeper[keyId]; ok {
+	if _, ok := keeper.Load(keyId); ok {
 		// 如果存在，是否接受忽略
 		if ignoreExisted {
 			return nil
@@ -388,15 +390,14 @@ func AddKey(enclaveManagedKey key_manage.EnclaveManagedKey, ignoreExisted bool) 
 		}
 	}
 
-	keeper[keyId] = enclaveManagedKey
+	keeper.Store(keyId, enclaveManagedKey)
 
 	return nil
 }
 
 func FetchKey(keyId string) (privateKey string, err error) {
-	if _, ok := keeper[keyId]; ok {
-		enclaveManagedKey := keeper[keyId]
-		return enclaveManagedKey.PrivateKey, nil
+	if v, ok := keeper.Load(keyId); ok {
+		return v.(key_manage.EnclaveManagedKey).PrivateKey, nil
 	}
 
 	return "", errors.New("not found")
@@ -408,21 +409,21 @@ func main() {
 	// 初始化配置文件
 	config.InitConfig()
 
-	keeper = make(map[string]key_manage.EnclaveManagedKey, 0)
-
 	// 测试网测试环境预置签名私钥
-	keeper["f47ac10b-58cc-0372-8567-0e02b2c3d479"] = key_manage.EnclaveManagedKey{
-		KeyId:      "f47ac10b-58cc-0372-8567-0e02b2c3d479",
-		Address:    "0xCb75C706a45fefF971359F53dF7DD6dF47a41013",
-		PrivateKey: "aead75071f4a9437df36d08acdcbb78b8dca55d02f0631f33f72274e9ee45a98",
-	}
+	keeper.Store("f47ac10b-58cc-0372-8567-0e02b2c3d479",
+		key_manage.EnclaveManagedKey{
+			KeyId:      "f47ac10b-58cc-0372-8567-0e02b2c3d479",
+			Address:    "0xCb75C706a45fefF971359F53dF7DD6dF47a41013",
+			PrivateKey: "aead75071f4a9437df36d08acdcbb78b8dca55d02f0631f33f72274e9ee45a98",
+		})
 
 	// 主网测试环境预置签名私钥
-	keeper["6ddcd9c1-7a6a-42b0-8641-4311b4cb98b4"] = key_manage.EnclaveManagedKey{
-		KeyId:      "6ddcd9c1-7a6a-42b0-8641-4311b4cb98b4",
-		Address:    "0xE7c441409A79E8Eec7489de81697b3fE44281182",
-		PrivateKey: "dfd5b91a521e985eef6d2b46cd0b170f72b0315c741b1e7389e1e4493c9e4f6f",
-	}
+	keeper.Store("6ddcd9c1-7a6a-42b0-8641-4311b4cb98b4",
+		key_manage.EnclaveManagedKey{
+			KeyId:      "6ddcd9c1-7a6a-42b0-8641-4311b4cb98b4",
+			Address:    "0xE7c441409A79E8Eec7489de81697b3fE44281182",
+			PrivateKey: "dfd5b91a521e985eef6d2b46cd0b170f72b0315c741b1e7389e1e4493c9e4f6f",
+		})
 
 	// Listen for VM sockets connections on port 1024.
 	l, err := vsock.ListenContextID(unix.VMADDR_CID_ANY, 1024, nil)
