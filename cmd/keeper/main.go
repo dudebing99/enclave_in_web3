@@ -164,28 +164,33 @@ func process(conn net.Conn) {
 		reqJson := msg
 		json.Unmarshal(reqJson, &req)
 
-		enclaveManagedKey := key_manage.Generate()
-		// 添加私钥
-		err := AddKey(enclaveManagedKey, false)
-		if err != nil {
-			log.Println("add key error: ", err)
-			// 异常处理
-			internalError.ErrorMsg = fmt.Sprint("add key error: ", err)
-			goto InternalError
-		}
+		number := req.Number
+		rsp := make(dtos.GenerateAddressRsp, 0)
 
-		encryptedKey, err := key_manage.EncryptPrivateKey(enclaveManagedKey.PrivateKey)
-		if err != nil {
-			log.Println("encrypt key error: ", err)
-			// 异常处理
-			internalError.ErrorMsg = fmt.Sprint("encrypt key error: ", err)
-			goto InternalError
-		}
+		for i := 0; i < int(number); i++ {
+			enclaveManagedKey := key_manage.Generate()
+			// 添加私钥
+			err := AddKey(enclaveManagedKey, false)
+			if err != nil {
+				log.Println("add key error: ", err)
+				// 异常处理
+				internalError.ErrorMsg = fmt.Sprint("add key error: ", err)
+				goto InternalError
+			}
 
-		rsp := dtos.GenerateAddressRsp{
-			KeyId:      enclaveManagedKey.KeyId,
-			Address:    enclaveManagedKey.Address,
-			PrivateKey: encryptedKey,
+			encryptedKey, err := key_manage.EncryptPrivateKey(enclaveManagedKey.PrivateKey)
+			if err != nil {
+				log.Println("encrypt key error: ", err)
+				// 异常处理
+				internalError.ErrorMsg = fmt.Sprint("encrypt key error: ", err)
+				goto InternalError
+			}
+
+			rsp = append(rsp, dtos.Address{
+				KeyId:      enclaveManagedKey.KeyId,
+				Address:    enclaveManagedKey.Address,
+				PrivateKey: encryptedKey,
+			})
 		}
 
 		// 写数据
