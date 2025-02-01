@@ -8,7 +8,6 @@ import (
 	"enclave_in_web3/utils"
 	"encoding/hex"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/mdlayher/vsock"
 	"golang.org/x/sys/unix"
@@ -18,10 +17,9 @@ import (
 	"net"
 	"os"
 	"strings"
-	"sync"
 )
 
-func process(conn net.Conn) {
+func process(conn net.Conn, keeper *key_manage.Keeper) {
 	defer conn.Close()
 
 	reader := bufio.NewReader(conn)
@@ -51,12 +49,12 @@ func process(conn net.Conn) {
 		showPrivateKey := req.ShowPrivateKey
 		keyId := req.KeyId
 
-		enclaveManagedKey := key_manage.Generate()
+		enclaveManagedKey := keeper.Generate()
 		if len(keyId) != 0 {
 			enclaveManagedKey.KeyId = keyId
 		}
 		// 添加私钥
-		err := AddKey(enclaveManagedKey, false)
+		err := keeper.AddKey(enclaveManagedKey, false)
 		if err != nil {
 			log.Println("add key error: ", err)
 			// 异常处理
@@ -107,7 +105,7 @@ func process(conn net.Conn) {
 			Address:    address,
 			PrivateKey: privateKey,
 		}
-		err = AddKey(enclaveManagedKey, false)
+		err = keeper.AddKey(enclaveManagedKey, false)
 		if err != nil {
 			log.Println("add key error: ", err)
 			// 异常处理
@@ -168,9 +166,9 @@ func process(conn net.Conn) {
 		rsp := make(dtos.GenerateAddressRsp, 0)
 
 		for i := 0; i < int(number); i++ {
-			enclaveManagedKey := key_manage.Generate()
+			enclaveManagedKey := keeper.Generate()
 			// 添加私钥
-			err := AddKey(enclaveManagedKey, false)
+			err := keeper.AddKey(enclaveManagedKey, false)
 			if err != nil {
 				log.Println("add key error: ", err)
 				// 异常处理
@@ -213,11 +211,11 @@ func process(conn net.Conn) {
 		message := req.Message
 		needToHash := req.NeedToHash
 
-		privateKey, err := FetchKey(keyId)
+		privateKey, err := keeper.Get(keyId)
 		if err != nil {
-			log.Println("fetch key error: ", err)
+			log.Println("get key error: ", err)
 			// 异常处理
-			internalError.ErrorMsg = fmt.Sprint("fetch key error: ", err)
+			internalError.ErrorMsg = err.Error()
 			goto InternalError
 		}
 
@@ -291,7 +289,7 @@ func process(conn net.Conn) {
 			Address:    address,
 			PrivateKey: privateKey,
 		}
-		err = AddKey(enclaveManagedKey, true)
+		err = keeper.AddKey(enclaveManagedKey, true)
 		if err != nil {
 			log.Println("add key error: ", err)
 			// 异常处理
@@ -323,11 +321,11 @@ func process(conn net.Conn) {
 		chainId := req.ChainId
 		rawTx := req.RawTx
 
-		privateKey, err := FetchKey(keyId)
+		privateKey, err := keeper.Get(keyId)
 		if err != nil {
-			log.Println("fetch key error: ", err)
+			log.Println("get key error: ", err)
 			// 异常处理
-			internalError.ErrorMsg = fmt.Sprint("fetch key error: ", err)
+			internalError.ErrorMsg = err.Error()
 			goto InternalError
 		}
 
@@ -373,62 +371,28 @@ InternalError:
 	}
 }
 
-// 私钥保管箱
-var keeper sync.Map
-
-func AddKey(enclaveManagedKey key_manage.EnclaveManagedKey, ignoreExisted bool) error {
-	keyId := enclaveManagedKey.KeyId
-
-	// 设置存储私钥阈值，超过阈值不处理
-	// TODO: 统计已添加私钥个数
-	//if uint32(keeper) >= utils.DefaultMaxPrivateKeys {
-	//	return errors.New("too much private keys")
-	//}
-
-	// 是否已存在
-	if _, ok := keeper.Load(keyId); ok {
-		// 如果存在，是否接受忽略
-		if ignoreExisted {
-			return nil
-		} else {
-			return errors.New("private key referred to the key id exists")
-		}
-	}
-
-	keeper.Store(keyId, enclaveManagedKey)
-
-	return nil
-}
-
-func FetchKey(keyId string) (privateKey string, err error) {
-	if v, ok := keeper.Load(keyId); ok {
-		return v.(key_manage.EnclaveManagedKey).PrivateKey, nil
-	}
-
-	return "", errors.New("not found")
-}
-
 func main() {
 	fmt.Println("Starting enclave keeper ...")
 
 	// 初始化配置文件
 	config.InitConfig()
 
+	keeper := key_manage.NewKeeper()
+
 	// 测试网测试环境预置签名私钥
-	keeper.Store("f47ac10b-58cc-0372-8567-0e02b2c3d479",
+	keeper.AddKey(
 		key_manage.EnclaveManagedKey{
 			KeyId:      "f47ac10b-58cc-0372-8567-0e02b2c3d479",
 			Address:    "0xCb75C706a45fefF971359F53dF7DD6dF47a41013",
 			PrivateKey: "aead75071f4a9437df36d08acdcbb78b8dca55d02f0631f33f72274e9ee45a98",
-		})
+		}, false)
 
 	// 主网测试环境预置签名私钥
-	keeper.Store("6ddcd9c1-7a6a-42b0-8641-4311b4cb98b4",
-		key_manage.EnclaveManagedKey{
-			KeyId:      "6ddcd9c1-7a6a-42b0-8641-4311b4cb98b4",
-			Address:    "0xE7c441409A79E8Eec7489de81697b3fE44281182",
-			PrivateKey: "dfd5b91a521e985eef6d2b46cd0b170f72b0315c741b1e7389e1e4493c9e4f6f",
-		})
+	keeper.AddKey(key_manage.EnclaveManagedKey{
+		KeyId:      "6ddcd9c1-7a6a-42b0-8641-4311b4cb98b4",
+		Address:    "0xE7c441409A79E8Eec7489de81697b3fE44281182",
+		PrivateKey: "dfd5b91a521e985eef6d2b46cd0b170f72b0315c741b1e7389e1e4493c9e4f6f",
+	}, false)
 
 	// Listen for VM sockets connections on port 1024.
 	l, err := vsock.ListenContextID(unix.VMADDR_CID_ANY, 1024, nil)
@@ -449,7 +413,7 @@ func main() {
 			log.Println("accept error: ", err)
 		}
 
-		go process(conn)
+		go process(conn, keeper)
 	}
 
 	os.Exit(0)

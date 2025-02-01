@@ -70,9 +70,8 @@ func main() {
 	} else {
 		err = r.Run()
 	}
-	if err != nil {
-		utils.CheckError(err)
-	}
+
+	utils.CheckError(err)
 
 	os.Exit(0)
 }
