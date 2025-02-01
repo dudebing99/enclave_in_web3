@@ -7,7 +7,7 @@ import (
 
 func GenerateRequestId() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Set("req_id", utils.GenerateId())
+		c.Set("req_id", utils.GenerateRequestId())
 
 		c.Next()
 	}

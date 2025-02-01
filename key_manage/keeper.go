@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/google/uuid"
 	"sync"
 )
 
@@ -66,12 +65,10 @@ func (k *Keeper) Generate() EnclaveManagedKey {
 	privateKey, err := crypto.GenerateKey()
 	utils.CheckError(err)
 
-	// Create the keyfile object with a random UUID.
-	UUID, err := uuid.NewRandom()
-	utils.CheckError(err)
+	uuid := utils.GenerateUUID()
 
 	key := &keystore.Key{
-		Id:         UUID,
+		Id:         uuid,
 		Address:    crypto.PubkeyToAddress(privateKey.PublicKey),
 		PrivateKey: privateKey,
 	}

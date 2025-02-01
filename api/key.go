@@ -42,6 +42,16 @@ func (controller *KeyController) generateKey(c *gin.Context) {
 		return
 	}
 
+	keyId := req.KeyId
+	if len(keyId) != 0 && !utils.IsValidKeyId(keyId) {
+		c.JSON(http.StatusOK, gin.H{
+			"req_id":     utils.ParseRequestId(c),
+			"error_code": utils.InvalidParameter,
+			"error_msg":  "invalid params",
+			"data":       nil})
+		return
+	}
+
 	debug := viper.GetBool("gateway.debug")
 	if !debug {
 		// 生产模式，不允许返回明文私钥
@@ -104,9 +114,9 @@ func (controller *KeyController) addKey(c *gin.Context) {
 	keyId := req.KeyId
 	address := req.Address
 	privateKey := req.PrivateKey
-	if len(keyId) != utils.KeyIdLength ||
-		len(address) != utils.AddressLength ||
-		len(privateKey) != utils.PrivateKeyLength {
+	if !utils.IsValidKeyId(keyId) ||
+		!utils.IsValidEthereumAddress(address) ||
+		!utils.IsValidPrivateKey(privateKey) {
 		c.JSON(http.StatusOK, gin.H{
 			"req_id":     utils.ParseRequestId(c),
 			"error_code": utils.InvalidParameter,
