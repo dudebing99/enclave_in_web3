@@ -213,7 +213,7 @@ func process(conn net.Conn, keeper *key_manage.Keeper) {
 
 		privateKey, err := keeper.Get(keyId)
 		if err != nil {
-			log.Println(err)
+			log.Println("get key error: ", err)
 			// 异常处理
 			internalError.ErrorMsg = err.Error()
 			goto InternalError
@@ -323,7 +323,7 @@ func process(conn net.Conn, keeper *key_manage.Keeper) {
 
 		privateKey, err := keeper.Get(keyId)
 		if err != nil {
-			log.Println(err)
+			log.Println("get key error: ", err)
 			// 异常处理
 			internalError.ErrorMsg = err.Error()
 			goto InternalError
