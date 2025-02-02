@@ -2,7 +2,6 @@
 
 export DATE=$(shell date '+%Y%m%d%H%M')
 #export GOPROXY=https://goproxy.io
-export GOVERSION=1.19
 
 enclave-client:
 	go build -o bin/enclave-client-$(DATE) ./cmd/client/main.go
