@@ -7,6 +7,9 @@ import (
 	"fmt"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/spf13/viper"
+	"sort"
+	"strings"
 	"sync"
 )
 
@@ -20,6 +23,10 @@ type Keeper struct {
 	// 私钥保管箱
 	keeper sync.Map
 	number uint32
+
+	seeds         []string
+	encryptionKey []byte
+	mtx           sync.Mutex
 }
 
 func NewKeeper() *Keeper {
@@ -80,4 +87,89 @@ func (k *Keeper) Generate() EnclaveManagedKey {
 	}
 
 	return enclaveManagedKey
+}
+
+func (k *Keeper) IsReady() (err error) {
+	count := viper.GetInt("keeper.seed.count")
+	if len(k.seeds) != count {
+		err = errors.New(fmt.Sprintf("encryption seeds absent, expected %d, got %d", count, len(k.seeds)))
+		return
+	}
+
+	return nil
+}
+
+func (k *Keeper) SetEncryptionSeed(seed string) error {
+	k.mtx.Lock()
+	defer k.mtx.Unlock()
+
+	count := viper.GetInt("keeper.seed.count")
+	minSeedLen := viper.GetInt("keeper.seed.minSeedLen-seed-len")
+	maxSeedLen := viper.GetInt("keeper.seed.maxSeedLen-seed-len")
+	if len(k.seeds) >= count {
+		return errors.New("seeds is exceeded")
+	}
+
+	if len(seed) > maxSeedLen || len(seed) < minSeedLen {
+		return errors.New(fmt.Sprintf("key's length should between %d and %d", minSeedLen, maxSeedLen))
+	}
+
+	k.seeds = append(k.seeds, seed)
+
+	// 生成加密 key
+	if len(k.seeds) == count {
+		// 对种子排序，设置种子不需要关注顺序
+		sort.Slice(k.seeds, func(i, j int) bool {
+			return strings.Compare(k.seeds[i], k.seeds[j]) >= 0
+		})
+
+		seedsStr := ""
+		for i := 0; i < len(k.seeds); i++ {
+			seedsStr += k.seeds[i]
+		}
+
+		k.encryptionKey = utils.GenerateSHA256(seedsStr)
+		//fmt.Println("encryption key: ", hex.EncodeToString(encryptionKey))
+	}
+
+	return nil
+}
+
+func (k *Keeper) EncryptPrivateKey(privateKey string) (hexedEncrypted string, err error) {
+	err = k.IsReady()
+	if err != nil {
+		return
+	}
+
+	encrypted, err := AesEncrypt([]byte(privateKey), k.encryptionKey)
+	if err != nil {
+		return
+	}
+	hexedEncrypted = hex.EncodeToString(encrypted)
+
+	//fmt.Println("encrypted: ", hexedEncrypted)
+
+	return
+}
+
+func (k *Keeper) DecryptPrivateKey(hexedEncrypted string) (decrypted string, err error) {
+	err = k.IsReady()
+	if err != nil {
+		return
+	}
+
+	encrypted, err := hex.DecodeString(hexedEncrypted)
+	if err != nil {
+		return
+	}
+
+	decryptedBytes, err := AesDecrypt(encrypted, k.encryptionKey)
+	if err != nil {
+		return
+	}
+
+	decrypted = string(decryptedBytes)
+	//fmt.Println("decrypted: ", decrypted)
+
+	return
 }

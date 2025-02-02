@@ -135,7 +135,7 @@ func process(conn net.Conn, keeper *key_manage.Keeper) {
 		_ = json.Unmarshal(reqJson, &req)
 		seed := req.EncryptionSeed
 
-		err := key_manage.SetEncryptionSeed(seed)
+		err := keeper.SetEncryptionSeed(seed)
 		if err != nil {
 			log.Println("set encryption seed error: ", err)
 			// 异常处理
@@ -176,7 +176,7 @@ func process(conn net.Conn, keeper *key_manage.Keeper) {
 				goto InternalError
 			}
 
-			encryptedKey, err := key_manage.EncryptPrivateKey(enclaveManagedKey.PrivateKey)
+			encryptedKey, err := keeper.EncryptPrivateKey(enclaveManagedKey.PrivateKey)
 			if err != nil {
 				log.Println("encrypt key error: ", err)
 				// 异常处理
@@ -259,7 +259,7 @@ func process(conn net.Conn, keeper *key_manage.Keeper) {
 		encodedEncryptedPrivateKey := req.PrivateKey // 加密后的私钥
 
 		// 需要先解密
-		err = key_manage.IsReady()
+		err = keeper.IsReady()
 		if err != nil {
 			log.Println("not ready: ", err)
 			// 异常处理
@@ -267,7 +267,7 @@ func process(conn net.Conn, keeper *key_manage.Keeper) {
 			goto InternalError
 		}
 
-		privateKey, err := key_manage.DecryptPrivateKey(encodedEncryptedPrivateKey)
+		privateKey, err := keeper.DecryptPrivateKey(encodedEncryptedPrivateKey)
 		if err != nil {
 			log.Println("decrypt private key error: ", err)
 			// 异常处理
