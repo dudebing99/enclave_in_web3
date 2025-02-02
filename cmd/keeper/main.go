@@ -45,7 +45,7 @@ func process(conn net.Conn, keeper *key_manage.Keeper) {
 	case utils.GenerateKeyReq:
 		var req dtos.GenerateKeyReq
 		reqJson := msg
-		json.Unmarshal(reqJson, &req)
+		_ = json.Unmarshal(reqJson, &req)
 		showPrivateKey := req.ShowPrivateKey
 		keyId := req.KeyId
 
@@ -86,7 +86,7 @@ func process(conn net.Conn, keeper *key_manage.Keeper) {
 	case utils.AddKeyReq:
 		var req dtos.AddKeyReq
 		reqJson := msg
-		json.Unmarshal(reqJson, &req)
+		_ = json.Unmarshal(reqJson, &req)
 		keyId := req.KeyId
 		address := req.Address
 		privateKey := req.PrivateKey
@@ -132,7 +132,7 @@ func process(conn net.Conn, keeper *key_manage.Keeper) {
 	case utils.SetEncryptionSeedReq:
 		var req dtos.SetEncryptionSeedReq
 		reqJson := msg
-		json.Unmarshal(reqJson, &req)
+		_ = json.Unmarshal(reqJson, &req)
 		seed := req.EncryptionSeed
 
 		err := key_manage.SetEncryptionSeed(seed)
@@ -160,7 +160,7 @@ func process(conn net.Conn, keeper *key_manage.Keeper) {
 	case utils.GenerateAddressReq:
 		var req dtos.GenerateAddressReq
 		reqJson := msg
-		json.Unmarshal(reqJson, &req)
+		_ = json.Unmarshal(reqJson, &req)
 
 		number := req.Number
 		rsp := make(dtos.GenerateAddressRsp, 0)
@@ -206,7 +206,7 @@ func process(conn net.Conn, keeper *key_manage.Keeper) {
 	case utils.SignMessageReq:
 		var req dtos.SignMessageReq
 		reqJson := msg
-		json.Unmarshal(reqJson, &req)
+		_ = json.Unmarshal(reqJson, &req)
 		keyId := req.KeyId
 		message := req.Message
 		needToHash := req.NeedToHash
@@ -253,7 +253,7 @@ func process(conn net.Conn, keeper *key_manage.Keeper) {
 	case utils.AddAddressReq:
 		var req dtos.AddAddressReq
 		reqJson := msg
-		json.Unmarshal(reqJson, &req)
+		_ = json.Unmarshal(reqJson, &req)
 		keyId := req.KeyId
 		address := req.Address
 		encodedEncryptedPrivateKey := req.PrivateKey // 加密后的私钥
@@ -316,7 +316,7 @@ func process(conn net.Conn, keeper *key_manage.Keeper) {
 	case utils.SignTransactionReq:
 		var req dtos.SignTransactionReq
 		reqJson := msg
-		json.Unmarshal(reqJson, &req)
+		_ = json.Unmarshal(reqJson, &req)
 		keyId := req.KeyId
 		chainId := req.ChainId
 		rawTx := req.RawTx

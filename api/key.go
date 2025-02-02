@@ -71,7 +71,7 @@ func (controller *KeyController) generateKey(c *gin.Context) {
 		// Enclave Keeper 内部错误特化处理
 		if msgType == utils.InternalErrorType {
 			var rsp dtos.InternalError
-			json.Unmarshal(rspJson, &rsp)
+			_ = json.Unmarshal(rspJson, &rsp)
 
 			c.JSON(http.StatusOK, gin.H{
 				"req_id":     utils.ParseRequestId(c),
@@ -90,7 +90,7 @@ func (controller *KeyController) generateKey(c *gin.Context) {
 	}
 
 	var rsp dtos.GenerateKeyRsp
-	json.Unmarshal(rspJson, &rsp)
+	_ = json.Unmarshal(rspJson, &rsp)
 	c.JSON(http.StatusOK, gin.H{
 		"req_id":     utils.ParseRequestId(c),
 		"error_code": utils.Success,
@@ -131,7 +131,7 @@ func (controller *KeyController) addKey(c *gin.Context) {
 		// Enclave Keeper 内部错误特化处理
 		if msgType == utils.InternalErrorType {
 			var rsp dtos.InternalError
-			json.Unmarshal(rspJson, &rsp)
+			_ = json.Unmarshal(rspJson, &rsp)
 
 			c.JSON(http.StatusOK, gin.H{
 				"req_id":     utils.ParseRequestId(c),
@@ -150,7 +150,7 @@ func (controller *KeyController) addKey(c *gin.Context) {
 	}
 
 	var rsp dtos.AddKeyRsp
-	json.Unmarshal(rspJson, &rsp)
+	_ = json.Unmarshal(rspJson, &rsp)
 	c.JSON(http.StatusOK, gin.H{
 		"req_id":     utils.ParseRequestId(c),
 		"error_code": utils.Success,
@@ -176,7 +176,7 @@ func (controller *KeyController) setEncryptionSeed(c *gin.Context) {
 		// Enclave Keeper 内部错误特化处理
 		if msgType == utils.InternalErrorType {
 			var rsp dtos.InternalError
-			json.Unmarshal(rspJson, &rsp)
+			_ = json.Unmarshal(rspJson, &rsp)
 
 			c.JSON(http.StatusOK, gin.H{
 				"req_id":     utils.ParseRequestId(c),
@@ -195,7 +195,7 @@ func (controller *KeyController) setEncryptionSeed(c *gin.Context) {
 	}
 
 	var rsp dtos.SetEncryptionSeedRsp
-	json.Unmarshal(rspJson, &rsp)
+	_ = json.Unmarshal(rspJson, &rsp)
 	c.JSON(http.StatusOK, gin.H{
 		"req_id":     utils.ParseRequestId(c),
 		"error_code": utils.Success,
@@ -229,7 +229,7 @@ func (controller *KeyController) generateAddress(c *gin.Context) {
 		// Enclave Keeper 内部错误特化处理
 		if msgType == utils.InternalErrorType {
 			var rsp dtos.InternalError
-			json.Unmarshal(rspJson, &rsp)
+			_ = json.Unmarshal(rspJson, &rsp)
 
 			c.JSON(http.StatusOK, gin.H{
 				"req_id":     utils.ParseRequestId(c),
@@ -249,7 +249,7 @@ func (controller *KeyController) generateAddress(c *gin.Context) {
 
 	// 创建地址成功，保存到本地数据库
 	var rsp dtos.GenerateAddressRsp
-	json.Unmarshal(rspJson, &rsp)
+	_ = json.Unmarshal(rspJson, &rsp)
 
 	for index, address := range rsp {
 		k := []byte(address.KeyId)

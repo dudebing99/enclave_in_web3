@@ -103,7 +103,7 @@ func loadKeystore() (err error) {
 			// Enclave Keeper 内部错误特化处理
 			if msgType == utils.InternalErrorType {
 				var rsp dtos.InternalError
-				json.Unmarshal(rspJson, &rsp)
+				_ = json.Unmarshal(rspJson, &rsp)
 
 				return errors.New(fmt.Sprintf("key id: %s, %s", string(k), rsp.ErrorMsg))
 			}
@@ -113,7 +113,7 @@ func loadKeystore() (err error) {
 
 		// 无需要处理响应
 		//var rsp dtos.AddAddressRsp
-		//json.Unmarshal(rspJson, &rsp)
+		//_ = json.Unmarshal(rspJson, &rsp)
 	}
 
 	return
