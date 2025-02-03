@@ -14,7 +14,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang/glog"
 	"github.com/spf13/viper"
-	"os"
 )
 
 func main() {
@@ -28,9 +27,8 @@ func main() {
 	// 触发 vsock
 	vsock.Trigger()
 
-	if err := loadKeystore(); err != nil {
-		utils.CheckError(err)
-	}
+	err := loadKeystore()
+	utils.CheckError(err)
 
 	// 初始化 web 服务器
 	debug := viper.GetBool("gateway.debug")
@@ -64,7 +62,6 @@ func main() {
 	router.Setup(r)
 
 	addr := viper.GetString("gateway.addr")
-	var err error
 	if len(addr) != 0 {
 		err = r.Run(addr)
 	} else {
@@ -72,8 +69,6 @@ func main() {
 	}
 
 	utils.CheckError(err)
-
-	os.Exit(0)
 }
 
 func loadKeystore() (err error) {

@@ -15,7 +15,6 @@ import (
 	"log"
 	"math/big"
 	"net"
-	"os"
 	"strings"
 )
 
@@ -380,41 +379,44 @@ func main() {
 	keeper := key_manage.NewKeeper()
 
 	// 测试网测试环境预置签名私钥
-	keeper.AddKey(
+	err := keeper.AddKey(
 		key_manage.EnclaveManagedKey{
 			KeyId:      "f47ac10b-58cc-0372-8567-0e02b2c3d479",
 			Address:    "0xCb75C706a45fefF971359F53dF7DD6dF47a41013",
 			PrivateKey: "aead75071f4a9437df36d08acdcbb78b8dca55d02f0631f33f72274e9ee45a98",
 		}, false)
+	utils.CheckError(err)
 
 	// 主网测试环境预置签名私钥
-	keeper.AddKey(key_manage.EnclaveManagedKey{
+	err = keeper.AddKey(key_manage.EnclaveManagedKey{
 		KeyId:      "6ddcd9c1-7a6a-42b0-8641-4311b4cb98b4",
 		Address:    "0xE7c441409A79E8Eec7489de81697b3fE44281182",
 		PrivateKey: "dfd5b91a521e985eef6d2b46cd0b170f72b0315c741b1e7389e1e4493c9e4f6f",
 	}, false)
+	utils.CheckError(err)
 
 	// Listen for VM sockets connections on port 1024.
 	l, err := vsock.ListenContextID(unix.VMADDR_CID_ANY, 1024, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer l.Close()
+	utils.CheckError(err)
+
+	defer func(l *vsock.Listener) {
+		err := l.Close()
+		utils.CheckError(err)
+	}(l)
+
 	// Accept a single connection.
 	c, err := l.Accept()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer c.Close()
+	utils.CheckError(err)
+
+	defer func(c net.Conn) {
+		err := c.Close()
+		utils.CheckError(err)
+	}(c)
 
 	for {
 		conn, err := l.Accept()
-		if err != nil {
-			log.Println("accept error: ", err)
-		}
+		utils.CheckError(err)
 
 		go process(conn, keeper)
 	}
-
-	os.Exit(0)
 }
