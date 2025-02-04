@@ -26,5 +26,5 @@ jobs:
         go build -o bin/enclave-client ./cmd/client/main.go && \
         go build -o bin/enclave-keeper ./cmd/keeper/main.go
 
-    # - name: Test
-    #   run: go test -v ./...
+    - name: Test
+      run: go test -v ./tests/...
