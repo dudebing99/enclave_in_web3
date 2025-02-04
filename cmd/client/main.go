@@ -24,8 +24,8 @@ func main() {
 	frame.InitFramework()
 	defer frame.ReleaseFramework()
 
-	// 触发 vsock
-	vsock.Trigger()
+	// 测试 vsock 是否可用
+	vsock.Test()
 
 	err := loadKeystore()
 	utils.CheckError(err)

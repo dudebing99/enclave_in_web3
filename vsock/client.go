@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func Trigger() {
+func Test() {
 	cid := viper.GetUint32("gateway.cid")
 	if cid == 0 {
 		return
@@ -22,9 +22,7 @@ func Trigger() {
 	}
 
 	conn, err := vsock.Dial(cid, port, nil)
-	if err != nil {
-		return
-	}
+	utils.CheckError(err)
 
 	defer conn.Close()
 }
