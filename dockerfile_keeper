@@ -1,4 +1,7 @@
-FROM golang:1.19
+FROM golang:1.19-alpine AS builder
+
+# Install dependencies for building (if needed, e.g., git for fetching dependencies)
+RUN apk add --no-cache gcc libc-dev make
 
 WORKDIR /enclave_in_web3
 
@@ -8,10 +11,17 @@ RUN go mod tidy
 
 RUN go build -o bin/enclave-keeper ./cmd/keeper/main.go
 
-RUN mkdir ./bin/conf
+FROM alpine:latest
 
-RUN cp conf/application_keeper.yml ./bin/conf/application.yml
+WORKDIR /enclave_in_web3
 
-EXPOSE 1024
+# Install necessary dependencies for running the app (e.g., libc)
+#RUN apk add --no-cache libc6-compat
 
-CMD ["./enclave-keeper"]
+COPY --from=builder /enclave_in_web3/bin/enclave-keeper ./
+COPY --from=builder /enclave_in_web3/conf/application_keeper.yml ./conf/application.yml
+
+EXPOSE 10000
+
+#CMD ["sleep", "infinity"]
+CMD ["enclave-keeper"]
