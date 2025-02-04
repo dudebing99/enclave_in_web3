@@ -16,15 +16,14 @@ import (
 )
 
 func TestTransferErc20(t *testing.T) {
-	client, err := ethclient.Dial("http://54.151.136.132:8545")
+	client, err := ethclient.Dial("http://127.0.0.1:8545")
 	if err != nil {
 		t.Fatal(err)
-		log.Fatal(err)
 	}
 
 	privateKey, err := crypto.HexToECDSA("aead75071f4a9437df36d08acdcbb78b8dca55d02f0631f33f72274e9ee45a98")
 	if err != nil {
-		log.Fatal(err)
+		t.Fatal(err)
 	}
 
 	publicKey := privateKey.Public()
@@ -36,14 +35,14 @@ func TestTransferErc20(t *testing.T) {
 	fromAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
 	nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
 	if err != nil {
-		log.Fatal(err)
+		t.Fatal(err)
 	}
 	fmt.Println("fromAddress: ", fromAddress, ", nonce: ", nonce)
 
 	value := big.NewInt(0) // in wei (0 eth)
 	gasPrice, err := client.SuggestGasPrice(context.Background())
 	if err != nil {
-		log.Fatal(err)
+		t.Fatal(err)
 	}
 	fmt.Println("gasPrice: ", gasPrice)
 
@@ -83,18 +82,18 @@ func TestTransferErc20(t *testing.T) {
 
 	chainID, err := client.NetworkID(context.Background())
 	if err != nil {
-		log.Fatal(err)
+		t.Fatal(err)
 	}
 	fmt.Println("chainId: ", chainID)
 
 	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainID), privateKey)
 	if err != nil {
-		log.Fatal(err)
+		t.Fatal(err)
 	}
 
 	err = client.SendTransaction(context.Background(), signedTx)
 	if err != nil {
-		log.Fatal(err)
+		t.Fatal(err)
 	}
 
 	fmt.Println("transaction hash: ", signedTx.Hash().Hex())

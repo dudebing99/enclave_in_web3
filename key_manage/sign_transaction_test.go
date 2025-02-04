@@ -11,7 +11,7 @@ func TestDecodeRLPTransaction(t *testing.T) {
 
 	tx, err := DecodeRLPRawTransaction(rawTx)
 	if err != nil {
-		t.Fatalf("%v", err)
+		t.Fatal(err)
 	} else {
 		txJson, _ := tx.MarshalJSON()
 		fmt.Println(string(txJson))
@@ -23,7 +23,7 @@ func TestDecodeRLPTransaction(t *testing.T) {
 
 	tx, err = DecodeRLPRawTransaction(signedRawTxStr)
 	if err != nil {
-		t.Fatalf("%v", err)
+		t.Fatal(err)
 	} else {
 		txJson, _ := tx.MarshalJSON()
 		fmt.Println(string(txJson))
@@ -36,11 +36,11 @@ func TestDecodeTransaction(t *testing.T) {
 	//02 dd 0101010101 94 cb75c706a45feff971359f53df7dd6df47a41013 0180c0			-- Java
 	tx, err := DecodeRawTransaction(rawTx)
 	if err != nil {
-		t.Fatalf("%v", err)
+		t.Fatal(err)
 	} else {
 		txJson, err := tx.MarshalJSON()
 		if err != nil {
-			t.Fatalf("%v", err)
+			t.Fatal(err)
 		}
 		fmt.Println(string(txJson))
 	}
@@ -48,12 +48,12 @@ func TestDecodeTransaction(t *testing.T) {
 	keyBytes := "aead75071f4a9437df36d08acdcbb78b8dca55d02f0631f33f72274e9ee45a98"
 	signedRawTxStr, err := SignTransaction2(rawTx, big.NewInt(97), keyBytes)
 	if err != nil {
-		t.Fatalf("%v", err)
+		t.Fatal(err)
 	}
 
 	tx, err = DecodeRawTransaction(signedRawTxStr)
 	if err != nil {
-		t.Fatalf("%v", err)
+		t.Fatal(err)
 	} else {
 		txJson, _ := tx.MarshalJSON()
 		fmt.Println(string(txJson))

@@ -35,13 +35,13 @@ func TestGenerateEip1559Transaction(t *testing.T) {
 	rawTxBytes := new(bytes.Buffer)
 	err := tx.EncodeRLP(rawTxBytes)
 	if err != nil {
-		panic(err)
+		t.Fatal(err)
 	}
 	fmt.Println("rlp raw tx: ", hex.EncodeToString(rawTxBytes.Bytes()))
 
 	rawTxBytes2, err := tx.MarshalBinary()
 	if err != nil {
-		panic(err)
+		t.Fatal(err)
 	}
 	fmt.Println("raw tx: ", hex.EncodeToString(rawTxBytes2))
 }
