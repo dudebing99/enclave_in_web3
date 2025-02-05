@@ -24,4 +24,4 @@ COPY --from=builder /enclave_in_web3/conf/application_keeper.yml ./conf/applicat
 EXPOSE 10000
 
 #CMD ["sleep", "infinity"]
-CMD ["./enclave-keeper"]
+CMD ["/enclave_in_web3/enclave-keeper", "-config", "/enclave_in_web3/conf/application.yml"]

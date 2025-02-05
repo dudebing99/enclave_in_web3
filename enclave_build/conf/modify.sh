@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 cp -f ./allocator.yaml /etc/nitro_enclaves/allocator.yaml
 

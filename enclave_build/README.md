@@ -24,7 +24,7 @@ nitro-cli build-enclave --docker-uri hello-enclave:1.0 --output-file /tmp/hello.
 
 ## Running
 
-Now that we have brand new enclave image, let's use `nitro-cli` to boot it up:
+Now that we have brand-new enclave image, let's use `nitro-cli` to boot it up:
 
 ```bash
 nitro-cli run-enclave --eif-path /tmp/hello.eif --cpu-count 2 --memory 128 --debug-mode

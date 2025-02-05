@@ -27,37 +27,9 @@ jobs:
       # Step 3: Build the Docker image
       - name: Build Docker image
         run: |
-          docker build . --file dockerfile_keeper --tag ${{ secrets.DOCKER_USERNAME }}/enclave_keeper:latest
+          docker build . --file Dockerfile --tag ${{ secrets.DOCKER_USERNAME }}/enclave_keeper:latest
       
       # Step 4: Push the Docker image to Docker Hub
       - name: Push Docker image
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/enclave_keeper:latest
-          
-  build-client:
-  
-    needs: build-keeper  # Make job dependent if necessary
-
-    runs-on: ubuntu-latest
-
-    steps:
-      # Step 1: Check out the code from the repository
-      - name: Checkout code
-        uses: actions/checkout@v4
-  
-      # Step 2: Log in to Docker Hub
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-  
-      # Step 3: Build the Docker image
-      - name: Build Docker image
-        run: |
-          docker build . --file dockerfile_client --tag ${{ secrets.DOCKER_USERNAME }}/enclave_client:latest
-      
-      # Step 4: Push the Docker image to Docker Hub
-      - name: Push Docker image
-        run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/enclave_client:latest
