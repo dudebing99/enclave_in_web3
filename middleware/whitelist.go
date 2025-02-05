@@ -1,8 +1,10 @@
 package middleware
 
 import (
-	"github.com/gin-gonic/gin"
+	"fmt"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func IPWhiteList(whitelist []string) gin.HandlerFunc {
@@ -19,7 +21,7 @@ func IPWhiteList(whitelist []string) gin.HandlerFunc {
 		}
 		// 如果 IP 地址不在白名单中，则返回错误信息
 		if !allowed {
-			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "IP address not allowed"})
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": fmt.Sprintf("IP address:%s not allowed", ip)})
 			return
 		}
 		// 允许请求继续访问后续的处理函数
