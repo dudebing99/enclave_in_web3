@@ -3,12 +3,12 @@ const Tx = require('ethereumjs-tx');
 const Http = require('http');
 
 const web3 = new Web3('https://endpoints.omniatech.io/v1/bsc/testnet/public');
-//const web3 = new Web3('https://flashy-solitary-diagram.bsc.quiknode.pro/429d3370c64df671c118a5fd847096d012843e88/')
+//const web3 = new Web3('{bsc-mainnet-endpoint}')
 
 function signTransaction(data, callback) {
     return new Promise(resolve => {
         const opt = {
-            hostname: '13.228.243.51',
+            hostname: '127.0.0.1',
             port: 10000,
             path: '/8ed8d7fe15437d09aeba8b757cc14cdc/api/sign/transaction',
             method: 'POST',
